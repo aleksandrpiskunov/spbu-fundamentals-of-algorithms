@@ -10,11 +10,27 @@ from src.common import NDArrayFloat
 
 
 def build_degree_histogram(G) -> tuple[NDArrayFloat, NDArrayFloat]:
-    degrees = [node_degree for _, node_degree in G.degree()] 
-    hist, bin_edges = np.histogram(degrees, bins=20)
-    mids = 0.5 * (bin_edges[1:] + bin_edges[:-1])
-    return hist, mids
+    deg_seq = np.array([d for _, d in G.degree()], dtype=int)
 
+    if deg_seq.size == 0:
+        return None
+
+    counts = np.bincount(deg_seq)
+
+    hist_all = counts / counts.sum()
+
+    degrees = np.arange(len(hist_all))
+
+    mask = (degrees > 0) & (hist_all > 0)
+
+    if not mask.any():
+        return None
+
+    mids = degrees[mask].astype(float)
+
+    hist = hist_all[mask].astype(float)
+
+    return hist, mids
 
 if __name__ == "__main__":
     # USairport500.txt stores a network of the most active US airports.
@@ -46,4 +62,3 @@ if __name__ == "__main__":
     ax.legend(fontsize=12)
     fig.tight_layout()
     plt.show()
-
