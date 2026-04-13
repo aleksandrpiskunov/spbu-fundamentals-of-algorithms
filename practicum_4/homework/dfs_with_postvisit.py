@@ -12,12 +12,24 @@ from src.common import AnyNxGraph
 
 class DfsViaLifoQueueWithPostvisit(GraphTraversal):
     def run(self, node: Any) -> None:
+        stack: deque[tuple[Any, bool]] = deque()
+        self.visited.add(node)
+        stack.append((node, False))
 
-        ##########################
-        ### PUT YOUR CODE HERE ###
-        #########################
+        while len(stack) > 0:
+            node, is_postvisit = stack.pop()
 
-        pass
+            if is_postvisit:
+                self.postvisit(node)
+                continue
+
+            self.previsit(node)
+            stack.append((node, True))
+
+            for neigh in reversed(list(self.G.neighbors(node))):
+                if neigh not in self.visited:
+                    self.visited.add(neigh)
+                    stack.append((neigh, False))
 
 
 class DfsViaLifoQueueWithPrinting(DfsViaLifoQueueWithPostvisit):

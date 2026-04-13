@@ -35,7 +35,7 @@ class DfsViaRecursion(GraphTraversal):
         self.visited.add(node)
         self.previsit(node)
 
-        for neigh in G.neighbors(node):
+        for neigh in self.G.neighbors(node):
             if neigh not in self.visited:
                 self.run(neigh)
 
@@ -44,12 +44,24 @@ class DfsViaRecursion(GraphTraversal):
 
 class DfsViaLifoQueue(GraphTraversal):
     def run(self, node: Any) -> None:
+        stack: deque[tuple[Any, bool]] = deque()
+        self.visited.add(node)
+        stack.append((node, False))
 
-        ##########################
-        ### PUT YOUR CODE HERE ###
-        #########################
+        while len(stack) > 0:
+            node, is_postvisit = stack.pop()
 
-        pass
+            if is_postvisit:
+                self.postvisit(node)
+                continue
+
+            self.previsit(node)
+            stack.append((node, True))
+
+            for neigh in reversed(list(self.G.neighbors(node))):
+                if neigh not in self.visited:
+                    self.visited.add(neigh)
+                    stack.append((neigh, False))
 
 
 class DfsViaRecursionWithPrinting(DfsViaRecursion):
@@ -69,11 +81,17 @@ class DfsViaLifoQueueWithPrinting(DfsViaLifoQueue):
 
 
 class TopologicalSorting(DfsViaRecursion):
-    ##########################
-    ### PUT YOUR CODE HERE ###
-    #########################
+    def previsit(self, node: Any, **params) -> None:
+        pass
 
-    pass
+    def sort(self, node: Any) -> list[Any]:
+        self.reset()
+        self.sorted_nodes: list[Any] = []
+        self.run(node)
+        return list(reversed(self.sorted_nodes))
+
+    def postvisit(self, node: Any, **params) -> None:
+        self.sorted_nodes.append(node)
 
 
 if __name__ == "__main__":
